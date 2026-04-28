@@ -14,7 +14,7 @@ public class Administrador extends Usuario{
 
     @Override
     public String toArchivo() {
-        return username+";"+password+";"+admin;
+        return username+";"+password+";"+true;
     }
 }
 
