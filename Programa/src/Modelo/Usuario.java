@@ -8,11 +8,15 @@ import java.security.NoSuchAlgorithmException;
  * <p>
  * Gestiona las credenciales de acceso almacenando la contraseña como hash SHA-256,
  * nunca en texto plano. Las subclases concretas definen el tipo de usuario
- * (normal, administrador, etc.) y pueden ampliar su comportamiento.
+ * (normal, administrador, etc.) y amplían su comportamiento según el rol.
+ * </p>
+ * <p>
+ * La validación de formato y unicidad del username se delega en
+ * {@code GestorUsuarios}, que tiene acceso al contexto necesario para realizarla.
  * </p>
  *
  * @author Adrián
- * @version 1.0
+ * @version 1.1
  */
 public abstract class Usuario {
 
@@ -24,29 +28,12 @@ public abstract class Usuario {
 
     /**
      * Crea un nuevo usuario a partir de credenciales en texto plano.
-     * La contraseña se hashea internamente antes de almacenarse.
+     * La contraseña se hashea con SHA-256 antes de almacenarse.
      *
-     * @param username identificador único; mínimo 3 caracteres, solo letras, dígitos y guion bajo
-     * @param password contraseña en texto plano; mínimo 8 caracteres, sin punto y coma
-     * @throws IllegalArgumentException si el username o la contraseña no cumplen los requisitos
+     * @param username identificador único del usuario
+     * @param password contraseña en texto plano; se convertirá a hash internamente
      */
     public Usuario(String username, String password) {
-        if (username == null || !username.matches("[a-zA-Z0-9_]{3,}")) {
-            throw new IllegalArgumentException(
-                    "El username solo puede contener letras, dígitos y _ (mínimo 3 caracteres)."
-            );
-        }
-        if (password == null || password.length() < 8) {
-            throw new IllegalArgumentException(
-                    "La contraseña debe tener al menos 8 caracteres."
-            );
-        }
-        if (password.contains(";")) {
-            throw new IllegalArgumentException(
-                    "La contraseña no puede contener el carácter ';'."
-            );
-        }
-
         this.username = username;
         this.passwordHash = hashear(password);
     }
@@ -56,14 +43,13 @@ public abstract class Usuario {
      * <p>
      * Usar {@code yaEsHash = true} cuando el segundo parámetro ya es un hash SHA-256
      * (por ejemplo, al reconstruir el objeto desde {@code usuarios.txt}).
-     * Usar {@code yaEsHash = false} si se pasa la contraseña en texto plano y se quiere
-     * que el constructor la hashee.
+     * Usar {@code yaEsHash = false} si se pasa la contraseña en texto plano y debe hashearse.
      * </p>
      *
-     * @param username      identificador único del usuario
-     * @param passwordHash  contraseña en texto plano o hash SHA-256, según {@code yaEsHash}
-     * @param yaEsHash      {@code true} si {@code passwordHash} ya está hasheado;
-     *                      {@code false} si es texto plano y debe hashearse
+     * @param username     identificador único del usuario
+     * @param passwordHash contraseña en texto plano o hash SHA-256, según {@code yaEsHash}
+     * @param yaEsHash     {@code true} si el segundo parámetro ya es un hash SHA-256;
+     *                     {@code false} si es texto plano y debe hashearse
      */
     public Usuario(String username, String passwordHash, boolean yaEsHash) {
         this.username = username;
@@ -74,12 +60,12 @@ public abstract class Usuario {
      * Convierte una cadena de texto a su representación SHA-256 en hexadecimal.
      * <p>
      * SHA-256 está garantizado en toda JVM estándar, por lo que
-     * {@link NoSuchAlgorithmException} nunca debería lanzarse en la práctica.
+     * {@link NoSuchAlgorithmException} no debería lanzarse nunca en la práctica.
      * </p>
      *
      * @param password texto a hashear
      * @return cadena hexadecimal de 64 caracteres con el hash SHA-256
-     * @throws RuntimeException si SHA-256 no está disponible en la JVM (no debería ocurrir)
+     * @throws RuntimeException si SHA-256 no está disponible en la JVM
      */
     private static String hashear(String password) {
         try {
@@ -120,16 +106,21 @@ public abstract class Usuario {
     /**
      * Serializa los datos del usuario en una línea de texto para su almacenamiento en fichero.
      * <p>
-     * Formato: {@code username;passwordHash;esAdmin}
-     * </p>
-     * <p>
-     * Las subclases deben sobreescribir este método si añaden campos adicionales,
-     * asegurándose de mantener el separador {@code ;} y el orden de los campos.
+     * Formato base: {@code username;passwordHash;esAdmin}. Las subclases deben respetar
+     * el separador {@code ;} y el orden de campos para garantizar compatibilidad con
+     * {@code PersistenciaArchivos}.
      * </p>
      *
      * @return cadena con los datos del usuario listos para escribir en {@code usuarios.txt}
      */
-    public String toArchivo() {
-        return username + ";" + passwordHash + ";" + false;
-    }
+    public abstract String toArchivo();
+
+    /**
+     * Devuelve una representación legible del usuario para mostrar en pantalla y en logs.
+     * Cada subclase define el formato apropiado a su rol.
+     *
+     * @return representación textual del usuario
+     */
+    @Override
+    public abstract String toString();
 }
