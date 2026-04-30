@@ -9,9 +9,8 @@ package Modelo;
  * Esta clase proporciona métodos para acceder a los datos de la estadística
  * y convertirlos a diferentes formatos (CSV para almacenamiento y texto para visualización).
  * 
- * @author 
+ * @author juancarlos
  * @version 1.0
- * @since 1.0
  */
 public class Estadistica {
 
@@ -100,7 +99,7 @@ public class Estadistica {
      * @return una línea en formato CSV con todos los datos de la estadística
      */
     public String toArchivo() {
-        return username + "," + nombreJuego + "," + puntuacion + "," + victoria + "," + fecha;
+        return username + ";" + nombreJuego + ";" + puntuacion + ";" + victoria + ";" + fecha;
     }
 
     /**
