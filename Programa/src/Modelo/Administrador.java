@@ -25,6 +25,24 @@ public class Administrador extends Usuario {
     }
 
     /**
+     * Constructor de carga para reconstruir un {@code Administrador} desde fichero.
+     *
+     * <p>Usar exclusivamente en cargarUsuarios() cuando
+     * el hash de la contraseña ya está almacenado en disco. Pasar {@code true} en
+     * {@code yaEsHash} evita que la contraseña sea hasheada una segunda vez,
+     * lo que corrompería las credenciales y haría imposible iniciar sesión.</p>
+     *
+     * @param username   nombre de usuario tal como aparece en el fichero
+     * @param passwordHash hash SHA-256 de la contraseña, leído directamente del fichero
+     * @param yaEsHash   {@code true} si {@code passwordHash} ya es un hash y no debe
+     *                   procesarse; {@code false} si es texto plano y debe hashearse
+     * @see Usuario#Usuario(String, String, boolean)
+     */
+    public Administrador(String username, String passwordHash, boolean yaEsHash) {
+        super(username, passwordHash, yaEsHash);
+    }
+
+    /**
      * Devuelve una representación legible del administrador para depuración y logs.
      *
      * @return cadena con el formato {@code Administrador{username='<username>'}}
