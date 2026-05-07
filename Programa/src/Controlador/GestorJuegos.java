@@ -10,7 +10,16 @@ import java.util.ArrayList;
  * GestorJuegos — capa controlador.
  * Métodos y atributos según el diagrama UML V4.
  *
- * Autor: Nacho
+ * Autor: Ignacio del Peso Dominguez
+ * Fecha: 07/05/2026
+ * Versión: 1.0
+ * Descripción: Clase que gestiona los juegos del sistema.
+ * Métodos y atributos según el diagrama UML V4.
+ * 
+ * 
+ * 
+ * 
+ * 
  */
 public class GestorJuegos {
  
