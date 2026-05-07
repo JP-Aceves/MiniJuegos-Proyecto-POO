@@ -44,9 +44,10 @@ public class GestorPartidas {
      * @param jugadores lista de usuarios que participan
      * @return la {@link Partida} recién creada
      */
-    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores) {
+    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores, String fecha) {
         juego.inicializar();
-        partidaActual = new Partida(juego, jugadores);
+        int id = listaPartidas.size() + 1;
+        partidaActual = new Partida(id, juego, fecha, jugadores);
         return partidaActual;
     }
 
@@ -56,7 +57,8 @@ public class GestorPartidas {
      */
     public void pausarPartida() {
         if (partidaActual == null) return;
-        String estadoSerializado = partidaActual.pausar();
+        partidaActual.pausar();
+        String estadoSerializado = partidaActual.getJuego().serializarEstado();
         persistencia.guardarPartidaPausada(partidaActual.getId(), estadoSerializado);
     }
 
@@ -88,7 +90,7 @@ public class GestorPartidas {
      *
      * @return lista de ids como {@code String}
      */
-    public ArrayList<String> listarPartidasPausadas() {
+    public ArrayList<Integer> listarPartidasPausadas() {
         return persistencia.listarPartidasPausadas();
     }
 
