@@ -65,3 +65,8 @@ hs_err_pid*
 replay_pid*
 
 *~
+
+# Datos de persistencia
+Programa/data/usuarios.txt
+Programa/data/estadisticas.txt
+Programa/data/partidas/*.dat
