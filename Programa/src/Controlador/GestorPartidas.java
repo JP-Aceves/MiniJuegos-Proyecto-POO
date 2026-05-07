@@ -12,11 +12,18 @@ import java.util.ArrayList;
  * Coordina la creación, pausa, reanudación y finalización de partidas,
  * delegando la persistencia en {@link GestorPersistencia}.
  * </p>
- *    @author JP-Aceves
- *    @author Adrián
- *    @version 1.1
+ *
+ * @author JP-Aceves
+ * @author Adrián
+ * @version 1.2
  */
 public class GestorPartidas {
+
+    /**
+     * Contador global de partidas creadas. Se inicializa leyendo los ficheros
+     * existentes en disco para evitar colisiones de id entre ejecuciones.
+     */
+    private static int contadorId = 0;
 
     /** Partida que se está jugando en este momento. {@code null} si no hay ninguna activa. */
     private Partida partidaActual;
@@ -28,25 +35,44 @@ public class GestorPartidas {
     private GestorPersistencia persistencia;
 
     /**
-     * Construye el gestor con la implementación de persistencia indicada.
+     * Construye el gestor con la implementación de persistencia indicada
+     * e inicializa el contador de ids leyendo los ficheros existentes en disco.
      *
      * @param persistencia implementación de {@link GestorPersistencia} a usar
      */
     public GestorPartidas(GestorPersistencia persistencia) {
         this.persistencia = persistencia;
         this.partidaActual = null;
+        inicializarContador();
+    }
+
+    /**
+     * Lee los ids de las partidas pausadas en disco y fija {@code contadorId}
+     * al valor máximo encontrado. Así cada nueva partida recibe un id único
+     * aunque la aplicación se haya reiniciado entre sesiones.
+     */
+    private void inicializarContador() {
+        ArrayList<Integer> pausadas = persistencia.listarPartidasPausadas();
+        int maxId = 0;
+        for (int id : pausadas) {
+            if (id > maxId) maxId = id;
+        }
+        contadorId = maxId;
     }
 
     /**
      * Inicializa el juego y crea una nueva partida con los jugadores indicados.
+     * El id se asigna incrementando {@code contadorId}, garantizando unicidad
+     * entre ejecuciones.
      *
-     * @param juego    juego que se va a jugar
+     * @param juego     juego que se va a jugar
      * @param jugadores lista de usuarios que participan
+     * @param fecha     fecha de inicio de la partida
      * @return la {@link Partida} recién creada
      */
-    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores) {
+    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores, String fecha) {
         juego.inicializar();
-        partidaActual = new Partida(juego, jugadores);
+        partidaActual = new Partida(++contadorId, juego, fecha, jugadores);
         return partidaActual;
     }
 
@@ -56,7 +82,8 @@ public class GestorPartidas {
      */
     public void pausarPartida() {
         if (partidaActual == null) return;
-        String estadoSerializado = partidaActual.pausar();
+        partidaActual.pausar();
+        String estadoSerializado = partidaActual.getJuego().serializarEstado();
         persistencia.guardarPartidaPausada(partidaActual.getId(), estadoSerializado);
     }
 
@@ -86,9 +113,9 @@ public class GestorPartidas {
     /**
      * Devuelve los identificadores de las partidas pausadas almacenadas en disco.
      *
-     * @return lista de ids como {@code String}
+     * @return lista de ids como {@code Integer}
      */
-    public ArrayList<String> listarPartidasPausadas() {
+    public ArrayList<Integer> listarPartidasPausadas() {
         return persistencia.listarPartidasPausadas();
     }
 
