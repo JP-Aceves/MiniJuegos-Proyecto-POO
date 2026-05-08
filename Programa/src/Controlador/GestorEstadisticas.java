@@ -1,8 +1,7 @@
 /**
  * 
- * @author Sistema de Gestión de Juegos
- * @version 1.0
- * @since 1.0
+ * @author juancarlos
+ * @version 1.1
  * 
  * @see Estadistica
  */
@@ -15,7 +14,7 @@ public class GestorEstadisticas {
      * Lista que almacena todas las estadísticas del sistema.
      * Cada elemento es un objeto Estadistica con información de una partida.
      */
-    private ArrayList<Estadistica> estadisticas;
+    private ArrayList<Estadistica> estadisticas = new ArrayList<>();
     
     /**
      * Ruta del archivo CSV donde se persisten las estadísticas.
@@ -34,11 +33,8 @@ public class GestorEstadisticas {
      * 
      * @example
      *     GestorEstadisticas gestor = new GestorEstadisticas("datos/estadisticas.csv");
-     * 
-     * @see #cargarEstadisticas()
      */
     public GestorEstadisticas(String rutaArchivo) {
-        this.estadisticas = new ArrayList<>();
         this.rutaArchivo = rutaArchivo;
         cargarEstadisticas();
     }
@@ -58,8 +54,6 @@ public class GestorEstadisticas {
      *     Estadistica est = new Estadistica("Juan", "Pasapalabra", 2450, true, "2026-05-01");
      *     gestor.registrarResultado(est);
      * 
-     * @see Estadistica
-     * @see #guardarEstadisticas()
      */
     public void registrarResultado(Estadistica partida) {
         estadisticas.add(partida);
@@ -84,8 +78,6 @@ public class GestorEstadisticas {
      *         System.out.println(estadisticas.get(i));
      *     }
      * 
-     * @see #contarPartidas(String)
-     * @see #contarVictorias(String)
      */
     public ArrayList<Estadistica> getEstadisticasUsuario(String username) {
         ArrayList<Estadistica> resultado = new ArrayList<>();
