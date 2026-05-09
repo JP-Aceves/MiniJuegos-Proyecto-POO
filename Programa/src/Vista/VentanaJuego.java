@@ -11,7 +11,7 @@ import javax.swing.*;
  * y declara {@link #actualizarVista()} como método abstracto que cada subclase implementa
  * para repintar su interfaz específica.
  *
- * @author JP-Aceves
+ * @author JP, Adrián, Nacho, Juan Carlos
  * @version 1.0
  */
 public abstract class VentanaJuego extends JFrame {
@@ -21,9 +21,9 @@ public abstract class VentanaJuego extends JFrame {
     protected JFrame ventanaPadre;
 
     /**
-     * Construye la ventana de juego con sus dependencias y la ventana padre.
+     * Construye la ventana de juego con sus gestores y la ventana padre.
      *
-     * @param ventanaPadre       Ventana de menú principal a la que volver al cerrar.
+     * @param ventanaPadre       Ventana de menú principal para volver al cerrar.
      * @param gestorPartidas     Gestor de partidas del sistema.
      * @param gestorEstadisticas Gestor de estadísticas del sistema.
      */
@@ -51,23 +51,12 @@ public abstract class VentanaJuego extends JFrame {
 
     /**
      * Finaliza la partida, registra las estadísticas y vuelve al menú principal.
+     * La fecha de finalización es responsabilidad de los gestores.
      */
     protected void accionFinalizar() {
         gestorEstadisticas.registrarResultado(gestorPartidas.getPartidaActual());
         gestorPartidas.finalizarPartida();
         dispose();
         ventanaPadre.setVisible(true);
-    }
-
-    /**
-     * Genera la fecha actual como String en formato dd/MM/yyyy.
-     *
-     * @return Fecha actual en formato dd/MM/yyyy.
-     */
-    protected String obtenerFechaHoy() {
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        return cal.get(java.util.Calendar.DAY_OF_MONTH) + "/" +
-               (cal.get(java.util.Calendar.MONTH) + 1) + "/" +
-               cal.get(java.util.Calendar.YEAR);
     }
 }
