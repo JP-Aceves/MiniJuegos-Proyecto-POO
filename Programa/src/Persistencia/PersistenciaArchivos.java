@@ -6,6 +6,7 @@ import Modelo.Jugador;
 import Modelo.Usuario;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  * Los directorios necesarios se crean automáticamente en el constructor
  * si no existen previamente.</p>
  *
- * @author JP-Aceves
+ * @author JP
  * @version 1.0
  */
 public class PersistenciaArchivos implements GestorPersistencia {
@@ -60,12 +61,12 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * que produce una línea con el formato {@code username;password;esAdmin}.
      * Se llama a este método cada vez que se registra un nuevo usuario.</p>
      *
-     * @param listaUsuarios Lista de {@link Usuario} a persistir. No debe ser {@code null}.
+     * @param listaUsuarios lista de {@link Usuario} a persistir. No debe ser {@code null}.
      */
     @Override
     public void guardarUsuarios(ArrayList<Usuario> listaUsuarios) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(DATA_USUARIOS))){
-            for(Usuario u : listaUsuarios){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(DATA_USUARIOS))) {
+            for (Usuario u : listaUsuarios) {
                 bw.write(u.toArchivo());
                 bw.newLine();
             }
@@ -82,7 +83,7 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * en caso contrario, un {@link Jugador}.
      * Las líneas vacías o malformadas (menos de 3 campos) se ignoran silenciosamente.</p>
      *
-     * @return Lista de {@link Usuario} cargados desde disco.
+     * @return lista de {@link Usuario} cargados desde disco.
      *         Devuelve una lista vacía si el fichero no existe todavía.
      */
     @Override
@@ -90,9 +91,7 @@ public class PersistenciaArchivos implements GestorPersistencia {
         ArrayList<Usuario> lista = new ArrayList<>();
         File fichero = new File(DATA_USUARIOS);
 
-        if (!fichero.exists()) {
-            return lista;
-        }
+        if (!fichero.exists()) return lista;
 
         try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
             String linea;
@@ -130,7 +129,9 @@ public class PersistenciaArchivos implements GestorPersistencia {
      *
      * <p>La estadística se serializa mediante {@link Estadistica#toArchivo()},
      * que produce una línea con el formato
-     * {@code username;nombreJuego;puntuacion;victoria;fecha}.</p>
+     * {@code username;nombreJuego;puntuacion;victoria;fecha}.
+     * La fecha se escribe en formato ISO ({@code yyyy-MM-dd}) gracias a
+     * {@code LocalDate.toString()}.</p>
      *
      * @param e {@link Estadistica} a persistir. No debe ser {@code null}.
      */
@@ -149,9 +150,12 @@ public class PersistenciaArchivos implements GestorPersistencia {
      *
      * <p>El formato esperado por línea es
      * {@code username;nombreJuego;puntuacion;victoria;fecha}.
+     * La fecha se deserializa con {@link LocalDate#parse(CharSequence)},
+     * que espera formato ISO ({@code yyyy-MM-dd}), consistente con lo que
+     * escribe {@link Estadistica#toArchivo()}.
      * Las líneas vacías o con menos de 5 campos se ignoran silenciosamente.</p>
      *
-     * @return Lista de {@link Estadistica} cargadas desde disco.
+     * @return lista de {@link Estadistica} cargadas desde disco.
      *         Devuelve una lista vacía si el fichero no existe todavía.
      */
     @Override
@@ -159,9 +163,7 @@ public class PersistenciaArchivos implements GestorPersistencia {
         ArrayList<Estadistica> lista = new ArrayList<>();
         File fichero = new File(DATA_ESTADISTICAS);
 
-        if (!fichero.exists()) {
-            return lista;
-        }
+        if (!fichero.exists()) return lista;
 
         try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
             String linea;
@@ -172,11 +174,11 @@ public class PersistenciaArchivos implements GestorPersistencia {
                 String[] campos = linea.split(";");
                 if (campos.length < 5) continue;
 
-                String  username    = campos[0];
-                String  nombreJuego = campos[1];
-                int     puntuacion  = Integer.parseInt(campos[2]);
-                boolean victoria    = Boolean.parseBoolean(campos[3]);
-                String  fecha       = campos[4];
+                String    username    = campos[0];
+                String    nombreJuego = campos[1];
+                int       puntuacion  = Integer.parseInt(campos[2]);
+                boolean   victoria    = Boolean.parseBoolean(campos[3]);
+                LocalDate fecha       = LocalDate.parse(campos[4]);
 
                 lista.add(new Estadistica(username, nombreJuego, puntuacion, victoria, fecha));
             }
@@ -199,8 +201,8 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * {@code Juego.serializarEstado()}, cuyo formato concreto depende
      * de cada subclase de {@link Modelo.Juego}.</p>
      *
-     * @param id     Identificador único de la partida.
-     * @param estado String con el estado serializado del juego.
+     * @param id     identificador único de la partida
+     * @param estado String con el estado serializado del juego
      */
     @Override
     public void guardarPartidaPausada(int id, String estado) {
@@ -217,16 +219,14 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * <p>El String devuelto se pasa directamente a {@code Juego.deserializarEstado()}
      * para reconstruir el estado interno del juego al reanudar la partida.</p>
      *
-     * @param id Identificador de la partida a cargar.
-     * @return String con el estado serializado, o {@code null} si el fichero no existe.
+     * @param id identificador de la partida a cargar
+     * @return String con el estado serializado, o {@code null} si el fichero no existe
      */
     @Override
     public String cargarPartidaPausada(int id) {
         File fichero = new File(CARPETA_PARTIDAS + id + ".dat");
 
-        if (!fichero.exists()) {
-            return null;
-        }
+        if (!fichero.exists()) return null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
             return br.readLine();
@@ -242,7 +242,7 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * <p>Se invoca cuando la partida se reanuda o se descarta, para no
      * acumular ficheros huérfanos en {@code data/partidas/}.</p>
      *
-     * @param id Identificador de la partida cuyo fichero se eliminará.
+     * @param id identificador de la partida cuyo fichero se eliminará
      */
     @Override
     public void eliminarPartidaPausada(int id) {
@@ -259,7 +259,7 @@ public class PersistenciaArchivos implements GestorPersistencia {
      * y extrae el id del nombre de cada fichero. Usado por {@code GestorPartidas}
      * para mostrar al usuario las partidas que puede reanudar.</p>
      *
-     * @return Lista de ids ({@code int}) de partidas pausadas.
+     * @return lista de ids ({@code int}) de partidas pausadas.
      *         Devuelve una lista vacía si no hay ninguna.
      */
     @Override
