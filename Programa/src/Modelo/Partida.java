@@ -1,5 +1,6 @@
 package Modelo;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
@@ -7,8 +8,8 @@ import java.util.ArrayList;
  * Coordina el flujo de la partida: gestión de turnos, estados y resultados.
  * Una partida puede estar en curso, pausada o finalizada.
  *
- * @author JP
- * @version 1.0
+ * @author JP-Aceves
+ * @version 2.0
  */
 public class Partida {
 
@@ -16,7 +17,10 @@ public class Partida {
     private int id;
 
     /** Fecha de inicio de la partida. */
-    private String fecha;
+    private LocalDate fecha;
+
+    /** Fecha de finalización de la partida. Null mientras no haya terminado. */
+    private LocalDate fechaFin;
 
     /** Índice del jugador que tiene el turno actual en {@code listaJugadores}. */
     private int turnoActual;
@@ -28,23 +32,24 @@ public class Partida {
     private Juego juego;
 
     /** Lista de jugadores que participan en la partida. */
-    private ArrayList<Usuario> listaJugadores = new ArrayList<>();
+    private ArrayList<Usuario> listaJugadores;
 
     /**
      * Crea una nueva partida en estado EN_CURSO.
+     * La fecha de inicio se registra automáticamente en el momento de creación.
      *
      * @param id             identificador único de la partida
      * @param juego          juego al que se va a jugar
-     * @param fecha          fecha de inicio en formato String
      * @param listaJugadores lista de usuarios que participan
      */
-    public Partida(int id, Juego juego, String fecha, ArrayList<Usuario> listaJugadores) {
+    public Partida(int id, Juego juego, ArrayList<Usuario> listaJugadores) {
         this.id = id;
         this.juego = juego;
         this.listaJugadores = listaJugadores;
         this.turnoActual = 0;
         this.estadoActual = EstadoPartida.EN_CURSO;
-        this.fecha = fecha;
+        this.fecha = LocalDate.now();
+        this.fechaFin = null;
     }
 
     /**
@@ -67,10 +72,12 @@ public class Partida {
     }
 
     /**
-     * Finaliza la partida cambiando su estado a FINALIZADA.
+     * Finaliza la partida cambiando su estado a FINALIZADA
+     * y registrando la fecha de fin.
      */
     public void finalizar() {
         this.estadoActual = EstadoPartida.FINALIZADA;
+        this.fechaFin = LocalDate.now();
     }
 
     /**
@@ -152,8 +159,15 @@ public class Partida {
     /**
      * @return fecha de inicio de la partida
      */
-    public String getFecha() {
+    public LocalDate getFecha() {
         return fecha;
+    }
+
+    /**
+     * @return fecha de finalización de la partida, o {@code null} si no ha terminado
+     */
+    public LocalDate getFechaFin() {
+        return fechaFin;
     }
 
     /**
