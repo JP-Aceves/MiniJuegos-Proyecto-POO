@@ -11,7 +11,7 @@ import javax.swing.*;
  * y declara {@link #actualizarVista()} como método abstracto que cada subclase implementa
  * para repintar su interfaz específica.
  *
- * @author JP, Adrián, Nacho, Juan Carlos
+ * @author JP-Aceves
  * @version 1.0
  */
 public abstract class VentanaJuego extends JFrame {
