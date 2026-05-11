@@ -1,100 +1,86 @@
 package controlador;
- 
+
 import modelo.Juego;
 import modelo.Pasapalabra;
 import modelo.TresEnRaya;
- 
+
 import java.util.ArrayList;
- 
+
 /**
- * GestorJuegos — capa controlador.
- * Métodos y atributos según el diagrama UML V4.
+ * Controlador encargado de gestionar los juegos disponibles en el sistema.
+ * Permite registrar juegos, instanciarlos y consultar sus propiedades.
  *
  * Autor: Ignacio del Peso Dominguez
- * Fecha: 07/05/2026
- * Versión: 1.0
+ * Fecha: 11/05/2026
+ * Versión: 2.0
  * Descripción: Clase que gestiona los juegos del sistema.
  * Métodos y atributos según el diagrama UML V4.
- * 
- * 
- * 
- * 
- * 
  */
 public class GestorJuegos {
- 
-    // ------------------------------------------------------------------ //
-    //  Atributos                                                           //
-    // ------------------------------------------------------------------ //
- 
-    /** Catálogo de juegos registrados en el sistema. */
-    private ArrayList<Juego> catalogoJuegos = new ArrayList<>();
- 
-    // ------------------------------------------------------------------ //
-    //  Métodos públicos (exactos del UML)                                  //
-    // ------------------------------------------------------------------ //
- 
+
     /**
-     * Registra un juego en el catálogo del sistema si no existe ya.
+     * Lista con los nombres de los juegos registrados en el sistema.
+     */
+    private ArrayList<String> juegosDisponibles;
+
+    /**
+     * Constructor por defecto. Inicializa la lista de juegos disponibles vacía.
+     */
+    public GestorJuegos() {
+        this.juegosDisponibles = new ArrayList<>();
+    }
+
+    /**
+     * Registra un juego en el sistema por su nombre si no estaba ya registrado.
      *
-     * @param nombre nombre del juego ("Pasapalabra", "TresEnRaya", …)
+     * @param nombre nombre del juego a registrar
      */
     public void registrarJuego(String nombre) {
-        for (Juego j : catalogoJuegos) {
-            if (j.getNombre().equals(nombre)) {
-                return;
-            }
-        }
-        Juego nuevo = crearJuego(nombre);
-        if (nuevo != null) {
-            catalogoJuegos.add(nuevo);
+        if (!juegosDisponibles.contains(nombre)) {
+            juegosDisponibles.add(nombre);
         }
     }
- 
+
     /**
      * Crea e inicializa una nueva instancia del juego indicado por nombre.
      *
-     * @param juego nombre del juego ("Pasapalabra", "TresEnRaya", …)
-     * @return instancia inicializada de Juego, o null si el nombre no existe
+     * @param nombre nombre del juego ("PasaPalabra", "TresEnRaya", …)
+     * @return instancia de Juego correspondiente, o null si el nombre no existe
      */
-    public Juego crearJuego(String juego) {
-        Juego j = null;
- 
-        switch (juego) {
-            case "Pasapalabra":
-                j = new Pasapalabra();
-                break;
-            case "TresEnRaya":
-                j = new TresEnRaya();
-                break;
-            default:
-                System.err.println("GestorJuegos: juego desconocido -> " + juego);
-                return null;
-        }
- 
-        j.inicializar();
-        return j;
+    public Juego crearJuego(String nombre) {
+        if ("PasaPalabra".equals(nombre)) return new Pasapalabra();
+        if ("TresEnRaya".equals(nombre)) return new TresEnRaya();
+        System.err.println("GestorJuegos: juego desconocido -> " + nombre);
+        return null;
     }
- 
+
     /**
-     * Devuelve los nombres de los juegos disponibles (registrados).
+     * Indica si un juego es multijugador.
      *
-     * @return ArrayList con los nombres de los juegos del catálogo
+     * @param nombre nombre del juego a consultar
+     * @return true si el juego admite varios jugadores, false si es para un solo jugador
+     */
+    public boolean esMultijugador(String nombre) {
+        return "TresEnRaya".equals(nombre);
+    }
+
+    /**
+     * Devuelve el número máximo de jugadores permitidos para un juego.
+     *
+     * @param nombre nombre del juego a consultar
+     * @return número máximo de jugadores (2 para TresEnRaya, 1 para el resto)
+     */
+    public int getMaxJugadores(String nombre) {
+        if ("TresEnRaya".equals(nombre)) return 2;
+        return 1;
+    }
+
+    /**
+     * Devuelve una copia de la lista de nombres de juegos registrados en el sistema.
+     *
+     * @return ArrayList con los nombres de los juegos disponibles
      */
     public ArrayList<String> getJuegosDisponibles() {
-        ArrayList<String> nombres = new ArrayList<>();
-        for (Juego j : catalogoJuegos) {
-            nombres.add(j.getNombre());
-        }
-        return nombres;
-    }
- 
-    /**
-     * Devuelve el catálogo completo de juegos registrados.
-     *
-     * @return ArrayList de instancias Juego registradas
-     */
-    public ArrayList<Juego> getCatalogoJuegos() {
-        return new ArrayList<>(catalogoJuegos); // copia defensiva
+        return new ArrayList<>(juegosDisponibles);
     }
 }
