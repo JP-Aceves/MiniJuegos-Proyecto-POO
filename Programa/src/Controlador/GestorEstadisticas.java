@@ -1,3 +1,11 @@
+package Controlador;
+
+import Modelo.Estadistica;
+import Modelo.Partida;
+import Modelo.PuntuacionJugador;
+import Modelo.Usuario;
+import Persistencia.GestorPersistencia;
+
 import java.util.ArrayList;
 
 /**
@@ -5,8 +13,8 @@ import java.util.ArrayList;
  * Coordina el registro, consulta y ranking de resultados de partidas.
  * Delega toda la persistencia en GestorPersistencia.
  *
- * @author juancarlos
- * @version 3
+ * @author juan Carlos
+ * @version 3.0
  */
 public class GestorEstadisticas {
 
@@ -16,7 +24,7 @@ public class GestorEstadisticas {
     /**
      * Constructor de GestorEstadisticas.
      *
-     * @param persistencia Implementación de Gestorpersistencia a utilizar para guardar y cargar estadisticas 
+     * @param persistencia implementación de GestorPersistencia a utilizar para guardar y cargar estadísticas
      */
     public GestorEstadisticas(GestorPersistencia persistencia) {
         this.persistencia = persistencia;
@@ -26,27 +34,24 @@ public class GestorEstadisticas {
     /**
      * Registra el resultado de una partida finalizada.
      * Extrae los datos de cada jugador, crea una Estadistica por cada uno
-     * y la guarda en persistencia como tambien en la lista en memoria.
+     * y la guarda en persistencia y en la lista en memoria.
      *
-     * @param partida Partida finalizada de la que se extrae el resultado
+     * @param partida partida finalizada de la que se extrae el resultado
      */
     public void registrarResultado(Partida partida) {
         ArrayList<PuntuacionJugador> puntuaciones = partida.getPuntuaciones();
         Usuario ganador = partida.getGanador();
 
-        // Procesar cada jugador de la partida
         for (PuntuacionJugador pj : puntuaciones) {
             String username = pj.getUsername();
             String nombreJuego = partida.getJuego().getNombre();
             int puntuacion = pj.getPuntos();
             boolean victoria = ganador != null && ganador.getUsername().equals(username);
-            String fecha = partida.getFecha();
 
-            // Crear una nueva estadistica para el jugador
-            Estadistica e = new Estadistica(username, nombreJuego, puntuacion, victoria, fecha);
-            // Guardar la estadistica en persistencia
+            Estadistica e = new Estadistica(username, nombreJuego, puntuacion, victoria,
+                    partida.getFechaFin());
+
             persistencia.agregarEstadistica(e);
-            // Añadir la estadistica a la lista en memoria
             listaEstadisticas.add(e);
         }
     }
@@ -54,8 +59,8 @@ public class GestorEstadisticas {
     /**
      * Devuelve todas las estadísticas de un usuario concreto.
      *
-     * @param u Usuario del que se quieren las estadísticas
-     * @return ArrayList con las estadísticas del usuario
+     * @param u usuario del que se quieren las estadísticas
+     * @return lista con las estadísticas del usuario
      */
     public ArrayList<Estadistica> getEstadisticasUsuario(Usuario u) {
         ArrayList<Estadistica> resultado = new ArrayList<>();
@@ -70,18 +75,19 @@ public class GestorEstadisticas {
     /**
      * Devuelve las últimas n estadísticas de un usuario, ordenadas de más reciente a más antigua.
      * Si el usuario tiene menos de n partidas, devuelve todas.
+     * El ordenamiento aprovecha el método {@code isBefore} de {@code LocalDate}
+     * para una comparación semánticamente clara.
      *
-     * @param u Usuario del que se quieren las estadísticas
-     * @param n Número máximo de resultados a devolver
-     * @return ArrayList con las últimas n estadísticas del usuario
+     * @param u usuario del que se quieren las estadísticas
+     * @param n número máximo de resultados a devolver
+     * @return lista con las últimas n estadísticas del usuario
      */
     public ArrayList<Estadistica> getUltimasPartidas(Usuario u, int n) {
         ArrayList<Estadistica> todas = getEstadisticasUsuario(u);
 
-        // Ordenar por fecha descendente
         for (int i = 0; i < todas.size() - 1; i++) {
             for (int j = i + 1; j < todas.size(); j++) {
-                if (todas.get(i).getFecha().compareTo(todas.get(j).getFecha()) < 0) {
+                if (todas.get(i).getFecha().isBefore(todas.get(j).getFecha())) {
                     Estadistica temp = todas.get(i);
                     todas.set(i, todas.get(j));
                     todas.set(j, temp);
@@ -89,7 +95,6 @@ public class GestorEstadisticas {
             }
         }
 
-        // Devolver las últimas n estadísticas del usuario
         ArrayList<Estadistica> resultado = new ArrayList<>();
         for (int i = 0; i < n && i < todas.size(); i++) {
             resultado.add(todas.get(i));
@@ -100,20 +105,18 @@ public class GestorEstadisticas {
     /**
      * Calcula el ranking de un juego concreto ordenado por puntuación de mayor a menor.
      *
-     * @param nombreJuego Nombre del juego del que se quiere el ranking
-     * @return ArrayList de estadísticas ordenadas por puntuación descendente
+     * @param nombreJuego nombre del juego del que se quiere el ranking
+     * @return lista de estadísticas ordenadas por puntuación descendente
      */
     public ArrayList<Estadistica> calcularRanking(String nombreJuego) {
         ArrayList<Estadistica> ranking = new ArrayList<>();
 
-        // Filtrar las estadisticas del juego
         for (Estadistica e : listaEstadisticas) {
             if (e.getNombreJuego().equals(nombreJuego)) {
                 ranking.add(e);
             }
         }
 
-        // Ordenar por puntuación descendente (burbuja)
         for (int i = 0; i < ranking.size() - 1; i++) {
             for (int j = i + 1; j < ranking.size(); j++) {
                 if (ranking.get(i).getPuntuacion() < ranking.get(j).getPuntuacion()) {
@@ -130,8 +133,8 @@ public class GestorEstadisticas {
     /**
      * Cuenta el total de partidas jugadas por un usuario.
      *
-     * @param username Nombre del usuario
-     * @return Número de partidas jugadas
+     * @param username nombre del usuario
+     * @return número de partidas jugadas
      */
     public int contarPartidas(String username) {
         int contador = 0;
@@ -146,8 +149,8 @@ public class GestorEstadisticas {
     /**
      * Cuenta el total de victorias de un usuario.
      *
-     * @param username Nombre del usuario
-     * @return Número de victorias
+     * @param username nombre del usuario
+     * @return número de victorias
      */
     public int contarVictorias(String username) {
         int contador = 0;
