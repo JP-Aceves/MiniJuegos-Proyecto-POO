@@ -1,5 +1,7 @@
 package Modelo;
 
+import java.time.LocalDate;
+
 /**
  * Clase que representa las estadísticas de una partida jugada.
  *
@@ -9,8 +11,8 @@ package Modelo;
  * Esta clase proporciona métodos para acceder a los datos de la estadística
  * y convertirlos a diferentes formatos (CSV para almacenamiento y texto para visualización).
  *
- * @author juancarlos
- * @version 1.0
+ * @author JP-Aceves, Juan Carlos
+ * @version 2.0
  */
 public class Estadistica {
 
@@ -27,18 +29,18 @@ public class Estadistica {
     private boolean victoria;
 
     /** La fecha en que se jugó la partida */
-    private String fecha;
+    private LocalDate fecha;
 
     /**
      * Construye una nueva estadística de partida con los datos especificados.
      *
-     * @param username el nombre de usuario del jugador
+     * @param username    el nombre de usuario del jugador
      * @param nombreJuego el nombre del juego jugado
-     * @param puntuacion la puntuación obtenida en la partida
-     * @param victoria true si la partida fue ganada, false si fue perdida
-     * @param fecha la fecha en que se jugó la partida
+     * @param puntuacion  la puntuación obtenida en la partida
+     * @param victoria    true si la partida fue ganada, false si fue perdida
+     * @param fecha       la fecha en que se jugó la partida
      */
-    public Estadistica(String username, String nombreJuego, int puntuacion, boolean victoria, String fecha) {
+    public Estadistica(String username, String nombreJuego, int puntuacion, boolean victoria, LocalDate fecha) {
         this.username = username;
         this.nombreJuego = nombreJuego;
         this.puntuacion = puntuacion;
@@ -85,21 +87,23 @@ public class Estadistica {
     /**
      * Obtiene la fecha en que se jugó la partida.
      *
-     * @return la fecha como String
+     * @return la fecha como {@code LocalDate}
      */
-    public String getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
     /**
      * Convierte la estadística a formato CSV para almacenamiento en archivo.
+     * La fecha se serializa automáticamente a formato ISO (yyyy-MM-dd) mediante
+     * {@code LocalDate.toString()}.
      *
-     * El formato de la línea CSV es: username,nombreJuego,puntuacion,victoria,fecha
+     * El formato de la línea es: username;nombreJuego;puntuacion;victoria;fecha
      *
      * @return una línea en formato CSV con todos los datos de la estadística
      */
     public String toArchivo() {
-        return username + ";" + nombreJuego + ";" + puntuacion + ";" + victoria + ";" + fecha;
+        return username + ";" + nombreJuego + ";" + puntuacion + ";" + victoria + ";" + fecha.toString();
     }
 
     /**
@@ -121,8 +125,7 @@ public class Estadistica {
         String resultado = victoria ? "VICTORIA, Enhorabuena" : "DERROTA, Sigue intentandolo";
         return String.format(
                 "Usuario: %s | Juego: %s | Puntuación: %d | Resultado: %s | Fecha: %s",
-                username, nombreJuego, puntuacion, resultado, fecha
+                username, nombreJuego, puntuacion, resultado, fecha.toString()
         );
     }
 }
-
