@@ -28,54 +28,52 @@ public class GestorJuegos {
     // ------------------------------------------------------------------ //
  
     /** Catálogo de juegos registrados en el sistema. */
-    private ArrayList<Juego> catalogoJuegos;
- 
-    // ------------------------------------------------------------------ //
-    //  Constructor                                                         //
-    // ------------------------------------------------------------------ //
- 
-    public GestorJuegos() {
-        catalogoJuegos = new ArrayList<>();
-    }
+    private ArrayList<Juego> catalogoJuegos = new ArrayList<>();
  
     // ------------------------------------------------------------------ //
     //  Métodos públicos (exactos del UML)                                  //
     // ------------------------------------------------------------------ //
  
     /**
-     * Registra un juego en el catálogo del sistema.
+     * Registra un juego en el catálogo del sistema si no existe ya.
      *
-     * @param j instancia de Juego a registrar
+     * @param nombre nombre del juego ("Pasapalabra", "TresEnRaya", …)
      */
-    public void registrarJuego(Juego j) {
-        if (j != null && !catalogoJuegos.contains(j)) {
-            catalogoJuegos.add(j);
+    public void registrarJuego(String nombre) {
+        for (Juego j : catalogoJuegos) {
+            if (j.getNombre().equals(nombre)) {
+                return;
+            }
+        }
+        Juego nuevo = crearJuego(nombre);
+        if (nuevo != null) {
+            catalogoJuegos.add(nuevo);
         }
     }
  
     /**
      * Crea e inicializa una nueva instancia del juego indicado por nombre.
      *
-     * @param n nombre del juego ("Pasapalabra", "TresEnRaya", …)
+     * @param juego nombre del juego ("Pasapalabra", "TresEnRaya", …)
      * @return instancia inicializada de Juego, o null si el nombre no existe
      */
-    public Juego crearNuevoJuego(String n) {
-        Juego juego = null;
+    public Juego crearJuego(String juego) {
+        Juego j = null;
  
-        switch (n) {
+        switch (juego) {
             case "Pasapalabra":
-                juego = new Pasapalabra();
+                j = new Pasapalabra();
                 break;
             case "TresEnRaya":
-                juego = new TresEnRaya();
+                j = new TresEnRaya();
                 break;
             default:
-                System.err.println("GestorJuegos: juego desconocido -> " + n);
+                System.err.println("GestorJuegos: juego desconocido -> " + juego);
                 return null;
         }
  
-        juego.inicializar();
-        return juego;
+        j.inicializar();
+        return j;
     }
  
     /**
@@ -100,4 +98,3 @@ public class GestorJuegos {
         return new ArrayList<>(catalogoJuegos); // copia defensiva
     }
 }
- 
