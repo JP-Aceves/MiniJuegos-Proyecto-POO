@@ -3,8 +3,10 @@ package Vista;
 import Controlador.GestorPartidas;
 import Controlador.GestorUsuarios;
 import Modelo.Usuario;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Ventana principal de navegación de la aplicación MiniJuegos.
@@ -224,7 +226,7 @@ public class VentanaMenuPrincipal extends JFrame {
      * {@code reanudarPartida} esté implementado en {@code GestorPartidas}.</p>
      */
     private void accionCargarPartida() {
-        java.util.ArrayList<String> ids = gestorPartidas.listarPartidasPausadas();
+        ArrayList<Integer> ids = gestorPartidas.listarPartidasPausadas();
 
         if (ids == null || ids.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -233,8 +235,8 @@ public class VentanaMenuPrincipal extends JFrame {
             return;
         }
 
-        String[] opciones = ids.toArray(new String[0]);
-        String seleccionada = (String) JOptionPane.showInputDialog(
+        Integer[] opciones = ids.toArray(new Integer[0]);
+        Integer seleccionada = (Integer) JOptionPane.showInputDialog(
                 this,
                 "Selecciona una partida para reanudar:",
                 "Cargar partida",
@@ -321,7 +323,7 @@ public class VentanaMenuPrincipal extends JFrame {
      */
     private void accionCerrarSesion() {
         gestorUsuarios.cerrarSesion();
-        new VentanaLogin(gestorUsuarios, gestorPartidas).setVisible(true);
+        new VentanaLogin(gestorUsuarios).setVisible(true);
         dispose();
     }
 }
