@@ -70,9 +70,9 @@ public class GestorPartidas {
      * @param fecha     fecha de inicio de la partida
      * @return la {@link Partida} recién creada
      */
-    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores, String fecha) {
+    public Partida iniciarPartida(Juego juego, ArrayList<Usuario> jugadores) {
         juego.inicializar();
-        partidaActual = new Partida(++contadorId, juego, fecha, jugadores);
+        partidaActual = new Partida(++contadorId, juego, jugadores);
         return partidaActual;
     }
 
