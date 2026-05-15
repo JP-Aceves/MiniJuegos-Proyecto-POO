@@ -104,48 +104,16 @@ Proyecto-POO/
 | **Ficheros de texto** | Persistencia de datos (requisito de la asignatura) |
 | **Draw.io** | Diagramas UML |
 
-> ⚠️ Sin librerías externas — requisito de la asignatura.
-
----
-
-## 🚀 Cómo Ejecutar
-
-### Requisitos Previos
-- Java 17 o superior
-- Cualquier IDE compatible (IntelliJ IDEA, Eclipse, VS Code + Extension Pack for Java)
-
-### Compilar y ejecutar
-
-1. **Clonar el repositorio**
-   ```bash
-   git clone https://github.com/Adrian-Duque/Proyecto-POO.git
-   cd Proyecto-POO/Programa
-   ```
-
-2. **Compilar**
-   ```bash
-   javac -d out src/**/*.java
-   ```
-
-3. **Ejecutar**
-   ```bash
-   java -cp out Sistema
-   ```
-
-### Desde un IDE
-- Importar la carpeta `Programa/` como proyecto Java
-- Ejecutar la clase `Sistema.java` como punto de entrada
-
 ---
 
 ## 👥 Reparto de Trabajo
 
 | Miembro | Componentes |
 |---------|------------|
-| **JP** | `EstadoPartida`, `PuntuacionJugador`, `GestorPersistencia` (interfaz), `PersistenciaArchivos`, `Juego` (abstracta), `Partida`, `GestorPartidas`, `VentanaJuego` (abstracta), `Sistema` |
-| **Adrián** | `Usuario`, `Administrador`, `PasaPalabra`, `PersistenciaArchivos` (colaboración), `VentanaLogin`, `VentanaMenuPrincipal`, `VentanaJuegoPasapalabra` |
-| **Juan Carlos** | `Estadistica`, `GestorEstadisticas`, `VentanaEstadisticas`, `VentanaAdmin` |
-| **Nacho** | `GestorJuegos`, `TresEnRaya`, `VentanaJuegoTresEnRaya` |
+| **JP-Aceves** | `EstadoPartida`, `PuntuacionJugador`, `GestorPersistencia` (interfaz), `PersistenciaArchivos`, `Juego` (abstracta), `Partida`, `GestorPartidas`, `VentanaJuego` (abstracta), `Sistema` |
+| **Adrián Duque** | `Usuario`, `Administrador`, `PasaPalabra`, `PersistenciaArchivos` (colaboración), `VentanaLogin`, `VentanaMenuPrincipal`, `VentanaJuegoPasapalabra` |
+| **Juan Carlos Alcazarde** | `Estadistica`, `GestorEstadisticas`, `VentanaEstadisticas`, `VentanaAdmin` |
+| **Ignacio del Peso** | `GestorJuegos`, `TresEnRaya`, `VentanaJuegoTresEnRaya` |
 
 ---
 
