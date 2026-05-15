@@ -1,8 +1,8 @@
-package controlador;
+package Controlador;
 
-import modelo.Juego;
-import modelo.Pasapalabra;
-import modelo.TresEnRaya;
+import Modelo.Juego;
+import Modelo.PasaPalabra;
+import Modelo.TresEnRaya;
 
 import java.util.ArrayList;
 
@@ -48,7 +48,7 @@ public class GestorJuegos {
      * @return instancia de Juego correspondiente, o null si el nombre no existe
      */
     public Juego crearJuego(String nombre) {
-        if ("PasaPalabra".equals(nombre)) return new Pasapalabra();
+        if ("Pasapalabra".equals(nombre)) return new PasaPalabra();
         if ("TresEnRaya".equals(nombre)) return new TresEnRaya();
         System.err.println("GestorJuegos: juego desconocido -> " + nombre);
         return null;
