@@ -1,33 +1,225 @@
-# MiniJuegos POO 🎮
-**Proyecto Final - Programación Orientada a Objetos**
-> Aplicación de minijuegos en Java con arquitectura en capas, interfaz gráfica Swing y persistencia en ficheros
+# MiniJuegos POO
 
-**Documentación: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/**
+**Proyecto Final — Programación Orientada a Objetos · 1º Ingeniería Informática**
 
-**Web: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/Presentacion.html**
+Aplicación de escritorio en Java con interfaz gráfica Swing, arquitectura en cuatro capas y persistencia en ficheros. Integra dos juegos completos — **Pasapalabra** y **Tres en Raya** — con un sistema de usuarios, roles, estadísticas y partidas pausables.
 
----
-
-## 📋 Descripción General
-
-MiniJuegos POO es el proyecto final de la asignatura de Programación Orientada a Objetos (1º de Ingeniería Informática). Se trata de una aplicación de escritorio en Java que integra varios minijuegos clásicos bajo una arquitectura en cuatro capas: **Vista (Swing)**, **Controladores**, **Modelo** y **Persistencia**. El sistema gestiona usuarios, partidas, estadísticas y permite pausar y reanudar partidas en curso.
+> Documentación web: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/
+> Presentación: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/Presentacion.html
 
 ---
 
-## 🎯 Objetivos
+## Índice
 
-- ✅ Implementar una arquitectura en capas limpia y desacoplada
-- ✅ Aplicar polimorfismo, herencia y abstracción en el diseño del modelo
-- ✅ Desarrollar una interfaz gráfica funcional con Java Swing
-- ✅ Persistir usuarios, estadísticas y partidas en ficheros de texto
-- ✅ Gestionar sesiones con roles diferenciados (jugador / administrador)
-- ✅ Permitir pausar y reanudar partidas mediante serialización de estado
+1. [Descripción general](#descripción-general)
+2. [Juegos implementados](#juegos-implementados)
+3. [Arquitectura del sistema](#arquitectura-del-sistema)
+4. [Estructura del proyecto](#estructura-del-proyecto)
+5. [Decisiones de diseño](#decisiones-de-diseño)
+6. [Cómo compilar y ejecutar](#cómo-compilar-y-ejecutar)
+7. [Tecnologías](#tecnologías)
+8. [Reparto de trabajo](#reparto-de-trabajo)
+9. [Autores](#autores)
 
 ---
 
-## 🚀 Cómo compilar y ejecutar
+## Descripción general
 
-> Requisito: **Java 17 o superior** instalado y `javac`/`java` en el PATH.
+MiniJuegos POO es una plataforma de juegos multijugador local que permite a varios usuarios registrarse, iniciar sesión y competir entre sí. El sistema mantiene un ranking de puntuaciones, permite pausar partidas en mitad del juego y reanudarlas más tarde, y ofrece un panel de administración para gestionar usuarios y datos.
+
+La interfaz sigue un diseño visual coherente negro/amarillo implementado a través de una clase `Tema` centralizada, lo que garantiza consistencia en todas las ventanas sin colores hardcodeados.
+
+---
+
+## Juegos implementados
+
+### Pasapalabra
+
+Juego individual de preguntas por letras basado en el programa televisivo español.
+
+- Rosco de 27 letras (A–Z + CH) con una pregunta por letra
+- El jugador puede **responder**, **pasar** o **fallar** cada letra
+- Temporizador con cuenta atrás configurable por dificultad
+- 4 niveles de dificultad con ficheros de preguntas independientes: `facil`, `medio`, `avanzado`, `infantil`
+- La partida se puede pausar en cualquier momento y reanudar posteriormente
+- Puntuación basada en letras acertadas
+
+### Tres en Raya
+
+Juego clásico para dos jugadores en local.
+
+- Tablero 3×3 con fichas X (amarillo) y O (blanco)
+- Turnos alternados con validación de celda ocupada
+- Detección automática de victoria (filas, columnas, diagonales) y empate
+- La partida se puede pausar y reanudar
+- El ganador suma 10 puntos al ranking
+
+---
+
+## Arquitectura del sistema
+
+El proyecto sigue una **arquitectura en cuatro capas** con dependencias unidireccionales: Vista → Controlador → Modelo ← Persistencia.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  VISTA  (Java Swing)                                    │
+│  VentanaLogin · VentanaMenuPrincipal · VentanaJuego*    │
+│  VentanaJuegoTresEnRaya · VentanaJuegoPasapalabra       │
+│  VentanaSeleccionJuego · VentanaEstadisticas            │
+│  VentanaAdmin · Tema (estilos)                          │
+└────────────────────┬────────────────────────────────────┘
+                     │ usa
+┌────────────────────▼────────────────────────────────────┐
+│  CONTROLADOR                                            │
+│  GestorUsuarios · GestorPartidas · GestorEstadisticas   │
+│  GestorJuegos                                           │
+└────────────────────┬────────────────────────────────────┘
+                     │ opera sobre
+┌────────────────────▼────────────────────────────────────┐
+│  MODELO                                                 │
+│  Juego* · PasaPalabra · TresEnRaya                      │
+│  Usuario* · Jugador · Administrador                     │
+│  Partida · Estadistica · PuntuacionJugador              │
+│  EstadoPartida                                          │
+└────────────────────┬────────────────────────────────────┘
+                     │ persiste con
+┌────────────────────▼────────────────────────────────────┐
+│  PERSISTENCIA                                           │
+│  GestorPersistencia (interfaz) · PersistenciaArchivos   │
+└─────────────────────────────────────────────────────────┘
+  * = clase abstracta
+```
+
+### Flujo de la aplicación
+
+```
+Arranque (Aplicacion.main)
+  └─► VentanaLogin
+        ├─► [login]    → GestorUsuarios.iniciarSesion()
+        └─► [registro] → GestorUsuarios.registrarUsuario()
+              └─► VentanaMenuPrincipal
+                    ├─► [Jugar]        → VentanaSeleccionJuego → VentanaJuegoXxx
+                    ├─► [Cargar]       → GestorPartidas.listarPartidasPausadas() → VentanaJuegoXxx
+                    ├─► [Estadísticas] → VentanaEstadisticas
+                    ├─► [Admin]        → VentanaAdmin  (solo administradores)
+                    └─► [Cerrar sesión]→ VentanaLogin
+```
+
+---
+
+## Estructura del proyecto
+
+```
+MiniJuegos-Proyecto-POO/
+│
+├── Programa/
+│   ├── compilar.sh                      # Compilar y ejecutar en Mac/Linux
+│   ├── compilar.bat                     # Compilar y ejecutar en Windows
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── Vista/                       # Capa de presentación (Swing)
+│   │   │   ├── Aplicacion.java          # Punto de entrada; inyecta dependencias y lanza la GUI
+│   │   │   ├── Tema.java                # Única fuente de verdad de colores y tipografía
+│   │   │   ├── VentanaLogin.java        # Login y registro de usuario
+│   │   │   ├── VentanaMenuPrincipal.java# Menú principal post-login
+│   │   │   ├── VentanaSeleccionJuego.java# Diálogo para elegir juego
+│   │   │   ├── VentanaJuego.java        # Clase abstracta: lógica común de pausar/finalizar
+│   │   │   ├── VentanaJuegoTresEnRaya.java
+│   │   │   ├── VentanaJuegoPasapalabra.java
+│   │   │   ├── VentanaEstadisticas.java # Tabla de ranking y resultados
+│   │   │   └── VentanaAdmin.java        # Panel de gestión (usuarios, partidas, ranking)
+│   │   │
+│   │   ├── Controlador/                 # Capa de lógica de negocio
+│   │   │   ├── GestorUsuarios.java      # Registro, login, roles, borrar usuarios
+│   │   │   ├── GestorPartidas.java      # Crear, pausar, reanudar y finalizar partidas
+│   │   │   ├── GestorEstadisticas.java  # Registrar resultados y consultar ranking
+│   │   │   ├── GestorJuegos.java        # Registro de juegos disponibles por nombre
+│   │   │   └── Sistema.java             # Punto de entrada alternativo (delega en Aplicacion)
+│   │   │
+│   │   ├── Modelo/                      # Capa de dominio
+│   │   │   ├── Juego.java               # Clase abstracta: estado, puntuaciones, serialización
+│   │   │   ├── PasaPalabra.java         # Implementación completa del juego Pasapalabra
+│   │   │   ├── TresEnRaya.java          # Implementación completa del juego Tres en Raya
+│   │   │   ├── Usuario.java             # Clase abstracta base de cuenta de usuario
+│   │   │   ├── Jugador.java             # Usuario estándar (esAdmin = false)
+│   │   │   ├── Administrador.java       # Usuario con privilegios de administración
+│   │   │   ├── Partida.java             # Representa una sesión de juego con sus jugadores
+│   │   │   ├── Estadistica.java         # Resultado individual de un jugador en una partida
+│   │   │   ├── PuntuacionJugador.java   # Par (username, puntos) usado dentro de los juegos
+│   │   │   ├── EstadoPartida.java       # Enum: EN_CURSO, PAUSADA, FINALIZADA
+│   │   │   └── roscos/                  # Ficheros de preguntas para Pasapalabra
+│   │   │       ├── rosco_facil.txt
+│   │   │       ├── rosco_medio.txt
+│   │   │       ├── rosco_avanzado.txt
+│   │   │       └── rosco_infantil.txt
+│   │   │
+│   │   └── Persistencia/                # Capa de almacenamiento
+│   │       ├── GestorPersistencia.java  # Interfaz: contrato de lectura/escritura
+│   │       └── PersistenciaArchivos.java# Implementación en ficheros de texto plano
+│   │
+│   └── data/                            # Datos en tiempo de ejecución (generados automáticamente)
+│       ├── usuarios.txt                 # Cuentas registradas (username + hash SHA-256)
+│       ├── estadisticas.txt             # Historial de resultados
+│       └── partidas/                    # Partidas pausadas serializadas
+│
+├── docs/
+│   └── README.md                        # Este fichero
+│
+└── Diagrama_TrabajoFinal.drawio         # Diagrama UML de clases
+```
+
+---
+
+## Decisiones de diseño
+
+### `Juego` como clase abstracta
+
+Todos los juegos comparten estado común: nombre, flag de finalizado y mapa de puntuaciones por jugador. Los métodos abstractos que cada juego implementa son:
+
+| Método | Responsabilidad |
+|--------|----------------|
+| `inicializar()` | Reiniciar el estado interno del juego |
+| `getEstadoTexto()` | Representación en texto del estado actual |
+| `serializarEstado()` | Convertir el estado a String para persistirlo |
+| `deserializarEstado(String)` | Restaurar el estado desde un String guardado |
+| `terminar()` | Marcar el juego como finalizado |
+
+### `GestorPersistencia` como interfaz
+
+Desacopla completamente el resto del sistema del mecanismo de almacenamiento. Cambiar de ficheros de texto a una base de datos solo requiere implementar la interfaz — ninguna otra clase cambia.
+
+### Jerarquía de `VentanaJuego`
+
+`VentanaJuego` es una clase abstracta que encapsula la lógica común a todos los juegos: referencia a la ventana padre, acceso a `GestorPartidas` y `GestorEstadisticas`, y los métodos `accionPausar()` y `accionFinalizar()` con el flujo correcto de persistencia. Ambas ventanas de juego (`VentanaJuegoTresEnRaya` y `VentanaJuegoPasapalabra`) extienden esta clase, garantizando comportamiento uniforme y eliminando duplicación.
+
+### Jerarquía de `Usuario`
+
+```
+Usuario (abstracta)
+├── Jugador      → cuenta estándar, acceso solo a juegos y estadísticas propias
+└── Administrador → acceso al panel de administración (borrar usuarios, ver todos los datos)
+```
+
+### `Tema.java` como fuente única de estilos
+
+Clase final con constantes estáticas para todos los colores y fuentes. Ninguna ventana tiene colores o fuentes hardcodeados — todas referencian `Tema.XXX`. Esto garantiza que cualquier cambio visual se aplica de forma global modificando un único fichero.
+
+### Serialización de partidas pausadas
+
+Cuando se pausa una partida, `GestorPartidas` guarda en fichero el estado completo con el formato:
+
+```
+nombreJuego|jugador1,jugador2|estadoSerializadoDelJuego
+```
+
+Cada juego define su propio formato interno en `serializarEstado()`. Al reanudar, el gestor reconstruye el objeto `Juego` con `deserializarEstado()` y restaura los jugadores.
+
+---
+
+## Cómo compilar y ejecutar
+
+**Requisito:** Java 17 o superior instalado (`java -version` debe funcionar en la terminal).
 
 ### Mac / Linux
 
@@ -37,7 +229,7 @@ chmod +x compilar.sh
 ./compilar.sh
 ```
 
-### Windows (CMD)
+### Windows
 
 ```cmd
 cd Programa
@@ -48,128 +240,41 @@ compilar.bat
 
 ```bash
 cd Programa
-find src -name "*.java" > sources.txt
+find src -name "*.java" > sources.txt        # En Windows: dir /s /b src\*.java > sources.txt
 javac -d out -sourcepath src @sources.txt
 java -cp out Vista.Aplicacion
 ```
 
-> **Importante:** ejecuta siempre desde la carpeta `Programa/` — los ficheros de roscos se buscan con ruta relativa desde ahí.
+> **Importante:** ejecuta siempre desde la carpeta `Programa/`. Los ficheros de roscos y de datos se buscan con rutas relativas a esa carpeta. Ejecutar desde otro directorio causará errores al cargar preguntas.
+
+La carpeta `data/` se crea automáticamente en el primer arranque. El usuario administrador por defecto se crea al registrarse con el nombre `admin`.
 
 ---
 
-## 📁 Estructura del Proyecto
+## Tecnologías
 
-```
-MiniJuegos-Proyecto-POO/
-├── Programa/
-│   ├── compilar.sh               # Script de compilación (Mac/Linux)
-│   ├── compilar.bat              # Script de compilación (Windows)
-│   ├── src/
-│   │   ├── Controlador/          # Gestores: usuarios, partidas, estadísticas, juegos
-│   │   │   ├── GestorUsuarios.java
-│   │   │   ├── GestorPartidas.java
-│   │   │   ├── GestorEstadisticas.java
-│   │   │   ├── GestorJuegos.java
-│   │   │   └── Sistema.java
-│   │   ├── Modelo/               # Entidades del dominio
-│   │   │   ├── Juego.java        # Clase abstracta base
-│   │   │   ├── PasaPalabra.java
-│   │   │   ├── TresEnRaya.java
-│   │   │   ├── Usuario.java
-│   │   │   ├── Administrador.java
-│   │   │   ├── Partida.java
-│   │   │   ├── Estadistica.java
-│   │   │   ├── PuntuacionJugador.java
-│   │   │   ├── EstadoPartida.java
-│   │   │   └── roscos/           # Ficheros de preguntas para Pasapalabra
-│   │   │       ├── rosco_facil.txt
-│   │   │       ├── rosco_medio.txt
-│   │   │       ├── rosco_avanzado.txt
-│   │   │       └── rosco_infantil.txt
-│   │   ├── Persistencia/         # Interfaz + implementación en ficheros
-│   │   │   ├── GestorPersistencia.java
-│   │   │   └── PersistenciaArchivos.java
-│   │   └── Vista/                # Ventanas y paneles Swing
-│   │       ├── Aplicacion.java   # Punto de entrada principal
-│   │       ├── Tema.java         # Paleta de colores y tipografía global
-│   │       ├── VentanaLogin.java
-│   │       ├── VentanaMenuPrincipal.java
-│   │       ├── VentanaSeleccionJuego.java
-│   │       ├── VentanaJuego.java           # Clase abstracta base de juego
-│   │       ├── VentanaJuegoTresEnRaya.java
-│   │       ├── VentanaJuegoPasapalabra.java
-│   │       ├── VentanaEstadisticas.java
-│   │       └── VentanaAdmin.java
-│   └── data/
-│       ├── usuarios.txt          # Persistencia de usuarios
-│       ├── estadisticas.txt      # Persistencia de estadísticas
-│       └── partidas/             # Partidas pausadas serializadas
-├── docs/
-│   └── README.md
-└── Diagrama_TrabajoFinal.drawio  # Diagrama UML de clases
-```
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| Java | 17+ | Lenguaje principal |
+| Java Swing | (incluido en JDK) | Interfaz gráfica de escritorio |
+| SHA-256 (MessageDigest) | (incluido en JDK) | Hash de contraseñas |
+| Ficheros de texto plano | — | Persistencia de datos (requisito de asignatura) |
+| Draw.io | — | Diagramas UML |
 
 ---
 
-## 🧩 Componentes Principales
+## Reparto de trabajo
 
-### 🎮 **Juegos Implementados**
-
-#### Pasapalabra
-- Rosco de letras con preguntas por cada letra del abecedario
-- El jugador responde, pasa o falla cada letra
-- Estado serializable para pausar y reanudar
-
-#### Tres en Raya
-- Modo dos jugadores en local
-- Detección automática de victoria y empate
-- Estado serializable para pausar y reanudar
-
----
-
-### 🏗️ **Arquitectura en Capas**
-
-| Capa | Paquete | Responsabilidad |
-|------|---------|----------------|
-| **Vista** | `Vista/` | Ventanas y paneles Swing — recoge input y muestra estado |
-| **Controlador** | `Controlador/` | Coordina vista con modelo; contiene toda la lógica de negocio |
-| **Modelo** | `Modelo/` | Entidades del dominio: usuarios, juegos, partidas, estadísticas |
-| **Persistencia** | `Persistencia/` | Interfaz `GestorPersistencia` + implementación en ficheros de texto |
-
----
-
-### 🔑 **Decisiones de Diseño**
-
-- **`Juego` es clase abstracta** — todos los juegos comparten estado (nombre, finalizado, puntuaciones) pero su mecánica es distinta. Métodos abstractos: `inicializar()`, `getEstadoTexto()`, `serializarEstado()`, `deserializarEstado()`.
-- **`GestorPersistencia` es interfaz** — desacopla el resto del código del sistema de almacenamiento, permitiendo migrar de ficheros a base de datos sin tocar las capas superiores.
-- **Polimorfismo en `GestorPartidas`** — trabaja con referencias tipo `Juego` sin saber si es `PasaPalabra` o `TresEnRaya`.
-- **Serialización de estado** — las partidas pausadas se serializan a string mediante `serializarEstado()` y cada juego define su propio formato.
-
----
-
-## 🛠️ Tecnologías Utilizadas
-
-| Tecnología | Uso |
-|-----------|-----|
-| **Java 17+** | Lenguaje principal |
-| **Java Swing** | Interfaz gráfica de usuario |
-| **Ficheros de texto** | Persistencia de datos (requisito de la asignatura) |
-| **Draw.io** | Diagramas UML |
-
----
-
-## 👥 Reparto de Trabajo
-
-| Miembro | Componentes |
-|---------|------------|
-| **JP-Aceves** | `EstadoPartida`, `PuntuacionJugador`, `GestorPersistencia` (interfaz), `PersistenciaArchivos`, `Juego` (abstracta), `Partida`, `GestorPartidas`, `VentanaJuego` (abstracta), `Sistema` |
-| **Adrián Duque** | `Usuario`, `Administrador`, `PasaPalabra`, `PersistenciaArchivos` (colaboración), `VentanaLogin`, `VentanaMenuPrincipal`, `VentanaJuegoPasapalabra` |
+| Miembro | Componentes desarrollados |
+|---------|--------------------------|
+| **JP Aceves** | `Juego` (abstracta), `Partida`, `EstadoPartida`, `PuntuacionJugador`, `GestorPersistencia` (interfaz), `PersistenciaArchivos`, `GestorPartidas`, `VentanaJuego` (abstracta), `Aplicacion`, `Sistema` |
+| **Adrián Duque** | `Usuario` (abstracta), `Jugador`, `Administrador`, `PasaPalabra`, `VentanaLogin`, `VentanaMenuPrincipal`, `VentanaJuegoPasapalabra` |
 | **Juan Carlos Alcazarde** | `Estadistica`, `GestorEstadisticas`, `VentanaEstadisticas`, `VentanaAdmin` |
-| **Ignacio del Peso** | `GestorJuegos`, `TresEnRaya`, `VentanaJuegoTresEnRaya` |
+| **Ignacio del Peso** | `TresEnRaya`, `GestorJuegos`, `VentanaJuegoTresEnRaya`, `VentanaSeleccionJuego` |
 
 ---
 
-## 👥 Autores
+## Autores
 
 - **JP Aceves** — [@jp-aceves](https://github.com/jp-aceves)
 - **Adrián Duque** — [@Adrian-Duque](https://github.com/Adrian-Duque)
