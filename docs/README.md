@@ -25,11 +25,45 @@ MiniJuegos POO es el proyecto final de la asignatura de Programación Orientada 
 
 ---
 
+## 🚀 Cómo compilar y ejecutar
+
+> Requisito: **Java 17 o superior** instalado y `javac`/`java` en el PATH.
+
+### Mac / Linux
+
+```bash
+cd Programa
+chmod +x compilar.sh
+./compilar.sh
+```
+
+### Windows (CMD)
+
+```cmd
+cd Programa
+compilar.bat
+```
+
+### Manual (cualquier sistema)
+
+```bash
+cd Programa
+find src -name "*.java" > sources.txt
+javac -d out -sourcepath src @sources.txt
+java -cp out Vista.Aplicacion
+```
+
+> **Importante:** ejecuta siempre desde la carpeta `Programa/` — los ficheros de roscos se buscan con ruta relativa desde ahí.
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```
-Proyecto-POO/
+MiniJuegos-Proyecto-POO/
 ├── Programa/
+│   ├── compilar.sh               # Script de compilación (Mac/Linux)
+│   ├── compilar.bat              # Script de compilación (Windows)
 │   ├── src/
 │   │   ├── Controlador/          # Gestores: usuarios, partidas, estadísticas, juegos
 │   │   │   ├── GestorUsuarios.java
@@ -40,26 +74,39 @@ Proyecto-POO/
 │   │   ├── Modelo/               # Entidades del dominio
 │   │   │   ├── Juego.java        # Clase abstracta base
 │   │   │   ├── PasaPalabra.java
+│   │   │   ├── TresEnRaya.java
 │   │   │   ├── Usuario.java
 │   │   │   ├── Administrador.java
 │   │   │   ├── Partida.java
 │   │   │   ├── Estadistica.java
 │   │   │   ├── PuntuacionJugador.java
-│   │   │   └── EstadoPartida.java
+│   │   │   ├── EstadoPartida.java
+│   │   │   └── roscos/           # Ficheros de preguntas para Pasapalabra
+│   │   │       ├── rosco_facil.txt
+│   │   │       ├── rosco_medio.txt
+│   │   │       ├── rosco_avanzado.txt
+│   │   │       └── rosco_infantil.txt
 │   │   ├── Persistencia/         # Interfaz + implementación en ficheros
 │   │   │   ├── GestorPersistencia.java
 │   │   │   └── PersistenciaArchivos.java
 │   │   └── Vista/                # Ventanas y paneles Swing
+│   │       ├── Aplicacion.java   # Punto de entrada principal
+│   │       ├── Tema.java         # Paleta de colores y tipografía global
 │   │       ├── VentanaLogin.java
 │   │       ├── VentanaMenuPrincipal.java
-│   │       ├── VentanaJuego.java
-│   │       └── VentanaJuegoPasapalabra.java
+│   │       ├── VentanaSeleccionJuego.java
+│   │       ├── VentanaJuego.java           # Clase abstracta base de juego
+│   │       ├── VentanaJuegoTresEnRaya.java
+│   │       ├── VentanaJuegoPasapalabra.java
+│   │       ├── VentanaEstadisticas.java
+│   │       └── VentanaAdmin.java
 │   └── data/
 │       ├── usuarios.txt          # Persistencia de usuarios
 │       ├── estadisticas.txt      # Persistencia de estadísticas
 │       └── partidas/             # Partidas pausadas serializadas
-├── Diagrama_TrabajoFinal.drawio  # Diagrama UML de clases
-└── README.md
+├── docs/
+│   └── README.md
+└── Diagrama_TrabajoFinal.drawio  # Diagrama UML de clases
 ```
 
 ---
@@ -73,9 +120,10 @@ Proyecto-POO/
 - El jugador responde, pasa o falla cada letra
 - Estado serializable para pausar y reanudar
 
-#### Tres en Raya *(en desarrollo)*
+#### Tres en Raya
 - Modo dos jugadores en local
 - Detección automática de victoria y empate
+- Estado serializable para pausar y reanudar
 
 ---
 
