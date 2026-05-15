@@ -2,6 +2,9 @@
 **Proyecto Final - Programación Orientada a Objetos**
 > Aplicación de minijuegos en Java con arquitectura en capas, interfaz gráfica Swing y persistencia en ficheros
 
+**Documentación: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/**
+**Web: https://jp-aceves.github.io/MiniJuegos-Proyecto-POO/Presentacion.html**
+
 ---
 
 ## 📋 Descripción General
